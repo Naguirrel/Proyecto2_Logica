@@ -1,6 +1,8 @@
+import argparse
+
 from dpll import dpll
 from fuerza_bruta import fuerza_bruta
-from utilidades import evaluar_formula
+from utilidades import evaluar_formula, parsear_formula_clausal
 
 
 CASOS = [
@@ -14,6 +16,8 @@ CASOS = [
         [["p", "q"], ["-p", "q"], ["p", "-q"], ["-p", "-q"]],
     ),
 ]
+
+EJEMPLO_ENTRADA = '[["p", "q"], ["-p", "r"]]'
 
 
 def copiar_formula(formula):
@@ -63,9 +67,63 @@ def ejecutar_caso(nombre, formula):
         raise AssertionError("Un algoritmo devolvio una asignacion invalida")
 
 
-def main():
+def ejecutar_demo():
     for nombre, formula in CASOS:
         ejecutar_caso(nombre, formula)
 
 
-main()
+def ejecutar_formula_usuario(formula):
+    ejecutar_caso("Formula ingresada", formula)
+
+
+def leer_formula_interactiva():
+    print("Ingrese una formula booleana en forma de clausulas.")
+    print(f"Ejemplo: {EJEMPLO_ENTRADA}")
+
+    while True:
+        texto = input("Formula CNF: ").strip()
+        if not texto:
+            print("La entrada no puede estar vacia.")
+            continue
+
+        try:
+            return parsear_formula_clausal(texto)
+        except ValueError as error:
+            print(f"Entrada invalida: {error}")
+
+
+def crear_parser_argumentos():
+    parser = argparse.ArgumentParser(
+        description="Resuelve SAT para formulas CNF en forma clausal."
+    )
+    parser.add_argument(
+        "formula",
+        nargs="?",
+        help=f"Formula en forma clausal. Ejemplo: '{EJEMPLO_ENTRADA}'",
+    )
+    parser.add_argument(
+        "--demo",
+        action="store_true",
+        help="Ejecuta los casos de demostracion incluidos en el proyecto.",
+    )
+    return parser
+
+
+def main():
+    parser = crear_parser_argumentos()
+    argumentos = parser.parse_args()
+
+    if argumentos.demo:
+        ejecutar_demo()
+        return
+
+    if argumentos.formula is None:
+        formula = leer_formula_interactiva()
+    else:
+        formula = parsear_formula_clausal(argumentos.formula)
+
+    ejecutar_formula_usuario(formula)
+
+
+if __name__ == "__main__":
+    main()

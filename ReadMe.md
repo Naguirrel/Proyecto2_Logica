@@ -6,8 +6,8 @@ estandar de Python.
 
 ## Archivos
 
-- `main.py`: ejecuta una demostracion con casos satisfacibles e
-  insatisfacibles.
+- `main.py`: recibe una formula clausal, ejecuta fuerza bruta y DPLL, y tambien
+  permite correr una demostracion con casos satisfacibles e insatisfacibles.
 - `fuerza_bruta.py`: resuelve SAT probando todas las asignaciones posibles.
 - `dpll.py`: resuelve SAT con una version basica del algoritmo DPLL.
 - `utilidades.py`: contiene funciones para evaluar y simplificar formulas CNF.
@@ -32,9 +32,21 @@ La literal `"-p"` representa la negacion de `p`.
 python main.py
 ```
 
-El programa muestra cada formula evaluada, el resultado de fuerza bruta, el
-resultado de DPLL, si ambos algoritmos coinciden y si las asignaciones
-encontradas satisfacen la formula original.
+El programa solicita una formula en forma de clausulas y muestra el resultado de
+fuerza bruta, el resultado de DPLL, si ambos algoritmos coinciden y si las
+asignaciones encontradas satisfacen la formula original.
+
+Tambien puede recibirse la formula directamente como argumento:
+
+```bash
+python main.py "[['p', 'q'], ['-p', 'r']]"
+```
+
+Para ejecutar los casos de demostracion incluidos:
+
+```bash
+python main.py --demo
+```
 
 ## Casos incluidos
 
