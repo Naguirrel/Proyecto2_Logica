@@ -1,4 +1,5 @@
 import argparse
+from time import perf_counter
 
 from dpll import dpll
 from fuerza_bruta import fuerza_bruta
@@ -30,10 +31,25 @@ def verificar_resultado(formula, satisfacible, asignacion):
     return asignacion is None
 
 
-def mostrar_resultado(nombre_algoritmo, satisfacible, asignacion):
+def medir_algoritmo(algoritmo, formula):
+    inicio = perf_counter()
+    satisfacible, asignacion, estadisticas = algoritmo(
+        copiar_formula(formula), devolver_estadisticas=True
+    )
+    tiempo = perf_counter() - inicio
+    return satisfacible, asignacion, tiempo, estadisticas
+
+
+def mostrar_resultado(nombre_algoritmo, satisfacible, asignacion, tiempo, estadisticas):
     print(f"{nombre_algoritmo}:")
     print(f"  Satisfacible: {satisfacible}")
     print(f"  Asignacion: {asignacion}")
+    print(f"  Tiempo: {tiempo:.6f} segundos")
+    print(f"  Combinaciones probadas: {estadisticas['combinaciones_probadas']}")
+
+    if "llamadas_recursivas" in estadisticas:
+        print(f"  Llamadas recursivas: {estadisticas['llamadas_recursivas']}")
+        print(f"  Ramas podadas: {estadisticas['ramas_podadas']}")
 
 
 def ejecutar_caso(nombre, formula):
@@ -43,11 +59,26 @@ def ejecutar_caso(nombre, formula):
 
     formula_original = copiar_formula(formula)
 
-    sat_fuerza_bruta, asignacion_fuerza_bruta = fuerza_bruta(formula)
-    sat_dpll, asignacion_dpll = dpll(formula)
+    (
+        sat_fuerza_bruta,
+        asignacion_fuerza_bruta,
+        tiempo_fuerza_bruta,
+        estadisticas_fuerza_bruta,
+    ) = medir_algoritmo(fuerza_bruta, formula)
+    sat_dpll, asignacion_dpll, tiempo_dpll, estadisticas_dpll = medir_algoritmo(
+        dpll, formula
+    )
 
-    mostrar_resultado("Fuerza bruta", sat_fuerza_bruta, asignacion_fuerza_bruta)
-    mostrar_resultado("DPLL", sat_dpll, asignacion_dpll)
+    mostrar_resultado(
+        "Fuerza bruta",
+        sat_fuerza_bruta,
+        asignacion_fuerza_bruta,
+        tiempo_fuerza_bruta,
+        estadisticas_fuerza_bruta,
+    )
+    mostrar_resultado(
+        "DPLL", sat_dpll, asignacion_dpll, tiempo_dpll, estadisticas_dpll
+    )
 
     coinciden = sat_fuerza_bruta == sat_dpll
     verifica_fuerza_bruta = verificar_resultado(
